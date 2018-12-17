@@ -21,7 +21,7 @@ end
 
 desc 'Lint'
 RuboCop::RakeTask.new(:rubocop) do |t|
-  t.patterns = %w(lib/**/*.rb spec/**/*.rb)
+  t.patterns = %w(lib/**/*.rb)
 end
 
 desc 'Run all the tests, lint all the things'
