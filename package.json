@@ -1,0 +1,11 @@
+{
+  "name": "eosio-rb",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Bridges Ruby <-> JS for EOS.",
+  "author": "The AUX Team",
+  "dependencies": {
+    "eosjs": "^20.0.0-beta2",
+    "node-fetch": "^2.2.0"
+  }
+}

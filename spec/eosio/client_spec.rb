@@ -51,7 +51,4 @@ describe EOSIO::Client do
       expect(response['rows'][0]).to eq 'success'
     end
   end
-
-  # @TODO, along with new tests for the serializer
-  pending '#transact'
 end

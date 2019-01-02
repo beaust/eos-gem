@@ -1,8 +1,6 @@
 require 'faraday'
 require 'json'
 
-require_relative './serializer'
-
 # Module housing all logic for interacting with the EOS blockchain.
 module EOSIO
   # Thrown if connection details (such as host) are missing.
@@ -50,22 +48,43 @@ module EOSIO
       JSON.parse resp.body
     end
 
-    # Takes a transaction hash and optional TAPoS data (`blocks_behind`,
-    # `expire_seconds`) and creates a transaction against the EOS blockchain.
-    def transact(txn, blocks_behind = 3, expire_seconds = 30)
-      serializer = Serializer.new
-      serializer.serialize_tx(txn.merge(blocks_behind: blocks_behind, expire_seconds: expire_seconds))
+    # Transacts against the EOS blockchain. For reasons I hate,
+    # this shells out to Node, so we have a dependency on a
+    # Node.js runtime (8+). More in `bridge.js`.
+    def transact(txn)
+      `node bridge.js "#{@protocol}://#{@host}:#{@port}" #{@signatures.first} #{txn[:account]} #{txn[:action]} #{txn[:invoice_id]} #{txn[:amount]}`
+    end
 
-      @conn.post do |req|
-        req.url '/v1/chain/push_transaction'
+    # Serializes JSON to hex string.
+    def serialize(transaction)
+      action = transaction[:actions][0]
+
+      resp = @conn.post do |req|
+        req.url '/v1/chain/abi_json_to_bin'
         req.headers['Content-Type'] = 'application/json'
         req.body = {
-          signatures: @signatures,
-          compression: 0,
-          packed_context_free_data: '',
-          packed_trx: serializer.array_to_hex
+          code: action[:account],
+          action: action[:name],
+          args: transaction[:data]
         }.to_json
       end
+
+      JSON.parse(resp.body)['binargs']
+    end
+
+    # Inflates hex string back to JSON.
+    def deserialize(code, action, binargs)
+      resp = @conn.post do |req|
+        req.url '/v1/chain/abi_bin_to_json'
+        req.headers['Content-Type'] = 'application/json'
+        req.body = {
+          code: code,
+          action: action,
+          binargs: binargs
+        }.to_json
+      end
+
+      JSON.parse(resp.body)['args']
     end
 
     private
@@ -79,7 +98,7 @@ module EOSIO
       @host = options[:host]
       @chain_id = options[:chain_id]
       @port = options[:port] || 80
-      @signature = options[:signatures]
+      @signatures = options[:signatures]
     end
 
     def default_connection
