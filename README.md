@@ -14,9 +14,27 @@ $ gem install eos
 
 ## Examples
 ```rb
-client = EOSIO::Client.new(host: 'jungle2.cryptolions.io')
+client = EOSIO::Client.new(host: 'jungle2.cryptolions.io', signatures: ['...'])
 client.get_table_rows(table: 'token', scope: 'cryptolocker', code: 'cryptolocker')
 # => {"rows"=>[], "more"=>false}
+
+client.transact({
+  actions: [{
+    account: 'coolinvoicer',
+    name: 'create',
+    authorization: [{
+      actor: 'gocoingocoin',
+      permission: 'active'
+    }]
+  }],
+  data: {
+    user: 'gocoingocoin',
+    invoice_id: 1,
+    amount: 100
+  }
+})
+
+# => TK
 ```
 
 ## Contributing
