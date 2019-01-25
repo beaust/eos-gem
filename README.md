@@ -12,7 +12,7 @@ This is a small wrapper library for interacting with the [EOS](https://eos.io/) 
 Just point your Gemfile to this repo...
 
 ```ruby
-gem 'eos', git: 'https://github.com/AuxPlatform/eos-gem'
+gem 'eosio', git: 'https://github.com/AuxPlatform/eos-gem'
 ```
 
 ...and install!
