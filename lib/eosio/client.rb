@@ -52,7 +52,8 @@ module EOSIO
     # this shells out to Node, so we have a dependency on a
     # Node.js runtime (8+). More in `bridge.js`.
     def transact(txn)
-      `node bridge.js "#{@protocol}://#{@host}:#{@port}" #{@signatures.first} #{txn[:account]} #{txn[:action]} #{txn[:invoice_id]} #{txn[:amount]}`
+      bridge = File.expand_path(File.join('..', '..', 'bridge.js'), File.dirname(__FILE__))
+      `node #{bridge} "#{@protocol}://#{@host}:#{@port}" #{@signatures.first} #{txn[:account]} #{txn[:action]} #{txn[:invoice_id]} #{txn[:amount]}`
     end
 
     # Serializes JSON to hex string.
