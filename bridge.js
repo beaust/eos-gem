@@ -7,7 +7,9 @@
  * shell out to Node in order to avoid this overhead.
  */
 
-const { Api, JsonRpc, JsSignatureProvider } = require("eosjs");
+const { Api, JsonRpc } = require("eosjs");
+const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig");
+
 const fetch = require("node-fetch");
 const { TextEncoder, TextDecoder } = require("util");
 
@@ -26,19 +28,23 @@ const eosRpc = new JsonRpc(URI, { fetch });
 const eosApi = new Api({ rpc: eosRpc, signatureProvider: eosSignatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
 
 (async () => {
-  let result = await eosApi.transact({ actions: [{
-    account: ACCOUNT,
-    name: ACTION,
-    authorization: [{
-      actor: ACCOUNT,
-      permission: "active",
-    }],
-    data: {
-      user: ACCOUNT,
-      invoice_id: INVOICE_ID,
-      amount: AMOUNT,
-    }
-  }]}, { blocksBehind: 3, expireSeconds: 30 });
-
-  console.log(result);
+  try {
+    let result = await eosApi.transact({ actions: [{
+      account: ACCOUNT,
+      name: ACTION,
+      authorization: [{
+        actor: ACCOUNT,
+        permission: "active",
+      }],
+      data: {
+        user: ACCOUNT,
+        invoice_id: INVOICE_ID,
+        amount: AMOUNT,
+      }
+    }]}, { blocksBehind: 3, expireSeconds: 30 });
+    console.log(result);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
 })();
