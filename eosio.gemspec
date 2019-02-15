@@ -9,4 +9,5 @@ Gem::Specification.new do |g|
   g.homepage = 'https://github.com/AuxPlatform/eos-gem'
   g.require_paths = %w(lib)
   g.summary = 'Wrapper library for interacting with the EOS blockchain.'
+  g.extensions = ['ext/eosio/extconf.rb']
 end
