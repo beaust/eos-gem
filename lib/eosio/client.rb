@@ -9,6 +9,9 @@ module EOSIO
   # Thrown if authorization details (specifically, signatures) are missing.
   class AuthorizationError < StandardError; end
 
+  # Thrown if transaction fails
+  class TransactionError < StandardError; end
+
   # Client used to connect to the EOS blockchain.
   class Client
     attr_reader :conn
@@ -51,9 +54,13 @@ module EOSIO
     # Transacts against the EOS blockchain. For reasons I hate,
     # this shells out to Node, so we have a dependency on a
     # Node.js runtime (8+). More in `bridge.js`.
+    # Throws a TransactionError if the transaction fails
     def transact(txn)
       bridge = File.expand_path(File.join('..', '..', 'bridge.js'), File.dirname(__FILE__))
-      `node #{bridge} "#{@protocol}://#{@host}:#{@port}" #{@signatures.first} #{txn[:account]} #{txn[:action]} #{txn[:invoice_id]} #{txn[:amount]}`
+      results = `node #{bridge} "#{@protocol}://#{@host}:#{@port}" #{@signatures.first} #{txn[:account]} #{txn[:action]} #{txn[:invoice_id]} #{txn[:amount]} 2>&1`
+
+      throw TransactionError.new(results) unless $?.success?
+      true
     end
 
     # Serializes JSON to hex string.
