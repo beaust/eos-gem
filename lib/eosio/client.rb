@@ -111,7 +111,7 @@ module EOSIO
 
     def default_connection
       Faraday.new(url: "#{@protocol}://#{@host}:#{@port}") do |faraday|
-        faraday.response :logger
+        faraday.response :logger if ENV['RAILS_ENV'] == 'development'
         faraday.adapter Faraday.default_adapter
       end
     end
